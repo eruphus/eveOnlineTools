@@ -117,11 +117,21 @@
     <Compile Include="entities\TRN\TranslationColumn.cs" />
     <Compile Include="entities\TRN\TranslationLanguage.cs" />
     <Compile Include="entities\WAR\CombatZone.cs" />
+    <Compile Include="EveStaticCore.cs" />
     <Compile Include="mappers\MappingHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="types\Location.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\libNHibernate\libNHibernate.csproj">
+      <Project>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</Project>
+      <Name>libNHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\libUtils\libUtils.csproj">
+      <Project>{BB664387-4705-436B-9895-CAF5A28B49C8}</Project>
+      <Name>libUtils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

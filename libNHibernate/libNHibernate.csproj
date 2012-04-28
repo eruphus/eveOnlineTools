@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FB2ABF2F-58D4-4122-BA69-2C23064F9F7E}</ProjectGuid>
+    <ProjectGuid>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>eveStatic</RootNamespace>
-    <AssemblyName>eveStatic</AssemblyName>
+    <RootNamespace>libNHibernate</RootNamespace>
+    <AssemblyName>libNHibernate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\libs\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\libs\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\libs\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\libs\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -41,13 +53,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\libNHibernate\libNHibernate.csproj">
-      <Project>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</Project>
-      <Name>libNHibernate</Name>
-    </ProjectReference>
+    <Compile Include="Configuration\AbstractDatabaseConfiguration.cs" />
+    <Compile Include="Configuration\BaseConfiguration.cs" />
+    <Compile Include="Configuration\DatabaseConfiguration.cs" />
+    <Compile Include="Configuration\MsSqlConfiguration.cs" />
+    <Compile Include="Configuration\MySqlConfiguration.cs" />
+    <Compile Include="DbSession.cs" />
+    <Compile Include="IDbTransaction.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

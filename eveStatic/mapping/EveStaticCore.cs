@@ -31,31 +31,40 @@
  
  */
 
+using System;
 using System.Linq;
+using libNHibernate;
+using libNHibernate.Configuration;
 using libUtils.Core;
-using libUtils.NHibernate;
 
 namespace eveStatic
 {
-    
-
-    public class EveStaticCore : DbSession
+    public sealed class EveStaticCore : IDisposable
     {
-        public EveStaticCore(MySqlDbConnection connection) : base(connection) { }
+        private readonly DbSession _session;
 
-        public new static IDbTransaction OpenTransaction()
+        private const string EveStaticDatabaseConfigSection = "eve-static-database";
+
+        public EveStaticCore() 
         {
-            return ((DbSession) ApplicationCore.Instance.GetService<EveStaticCore>()).OpenTransaction();
+            _session = new DbSession(DatabaseConfiguration.Load(EveStaticDatabaseConfigSection));
+            _session.AddAssemblyByType(GetType());
         }
 
-        public new static IQueryable<T> StartQuery<T>() where T : class
+        public static IDbTransaction OpenTransaction()
         {
-            return ((DbSession)ApplicationCore.Instance.GetService<EveStaticCore>()).StartQuery<T>();
+            return ApplicationCore.GetService<EveStaticCore>()._session.OpenTransaction();
         }
 
+        public static IQueryable<T> Query<T>() where T : class
+        {
+            return ApplicationCore.GetService<EveStaticCore>()._session.Query<T>(); 
+            
+        }
 
-
-
+        public void Dispose()
+        {
+            if (_session !=null) _session.Dispose();
+        }
     }
-
 }

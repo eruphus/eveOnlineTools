@@ -36,7 +36,6 @@ using FluentNHibernate.Mapping;
 namespace eveStatic.entities.TRN
 {
 
-
     /*
 CREATE TABLE dbo.trnTranslationLanguages
 (
@@ -45,7 +44,7 @@ CREATE TABLE dbo.trnTranslationLanguages
     languageName        nvarchar(200)  NULL,
     
     CONSTRAINT trnTranslationLanguages_PK PRIMARY KEY CLUSTERED (numericLanguageID) 
-)
+)*/
    
 
     public class TranslationLanguageMapper : ClassMap<TranslationLanguage>
@@ -69,5 +68,5 @@ CREATE TABLE dbo.trnTranslationLanguages
         public virtual string LanguageName { get; set; }
 
 
-    }  */
+    }  
 }

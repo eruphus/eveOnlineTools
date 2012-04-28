@@ -47,14 +47,14 @@ CREATE TABLE dbo.trnTranslations
   CONSTRAINT trnTranslations_PK PRIMARY KEY CLUSTERED(tcID, keyID, languageID)
 )
 
-
+*/
     public class TranslationMapper : ClassMap<Translation>
     {
         public TranslationMapper ()
         {
             Table("trnTranslations");
 
-            CompositeId().KeyProperty(x => x.TranslationColumn, "tcID").KeyReference(x => x.KeyId, "keyID").KeyProperty(x => x.LanguageId, "languageID");
+            CompositeId().KeyReference(x => x.TranslationColumn, "tcID").KeyProperty(x => x.KeyId, "keyID").KeyProperty(x => x.LanguageId, "languageID");
 
             References(x => x.TranslationColumn, "tcID");
 
@@ -73,7 +73,7 @@ CREATE TABLE dbo.trnTranslations
 
         public virtual string Text { get; set; }
 
-        public bool Equals(Translation other)
+        public virtual bool Equals(Translation other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -98,6 +98,6 @@ CREATE TABLE dbo.trnTranslations
                 return result;
             }
         }
-    }    */
+    }    
 
 }

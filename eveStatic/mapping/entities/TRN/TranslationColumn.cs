@@ -47,7 +47,7 @@ CREATE TABLE dbo.trnTranslationColumns
 
   CONSTRAINT translationColumns_PK PRIMARY KEY CLUSTERED (tcID)
 )
-  
+   */
 
     public class TranslationColumnMapper : ClassMap<TranslationColumn>
     {
@@ -67,10 +67,10 @@ CREATE TABLE dbo.trnTranslationColumns
 
     public class TranslationColumn 
     {
-        public virtual int Id { get; set; }
-        public virtual int TranslationColumnGroupId { get; set; }
+        public virtual short Id { get; set; }
+        public virtual short TranslationColumnGroupId { get; set; }
         public virtual string TableName { get; set; }
         public virtual string ColumnName { get; set; }
         public virtual string MasterID { get; set; }
-    }  */
+    }  
 }

@@ -34,6 +34,7 @@
 using System.Linq;
 using eveStatic;
 using eveStatic.entities.STA;
+using eveStatic.entities.TRN;
 using libEveOnlineTools;
 using libUtils.Core;
 
@@ -47,9 +48,11 @@ namespace EveOnlineToolsTestConsole
             using (ApplicationCore.Create<EveOnlineToolsCore>())
             {
 
-                var allStationTypes = (from g in EveStaticCore.Query<StationType>() select g).ToList();
+                var allItems = (from g in EveStaticCore.Query<TranslationLanguage>() select g).ToList();
+                var allColumns = (from g in EveStaticCore.Query<TranslationColumn>() select g).ToList();
+                var allTranslations = (from g in EveStaticCore.Query<Translation>() select g).ToList();
 
-                System.Console.WriteLine(allStationTypes.Count);
+                System.Console.WriteLine(allColumns.Count);
 
 
 

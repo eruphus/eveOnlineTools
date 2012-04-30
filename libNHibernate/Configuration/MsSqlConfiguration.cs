@@ -50,6 +50,10 @@ namespace libNHibernate.Configuration
         }
 
         [XmlAttribute("sub-type")] public MsSqlType SubType { get; set; }
+        [XmlElement("server")] public string Server { get; set; }
+        [XmlElement("user")] public string User { get; set; }
+        [XmlElement("password")] public string Password { get; set; }
+        [XmlElement("schema")] public string Schema { get; set; }
 
         protected override FluentNHibernate.Cfg.Db.MsSqlConfiguration GetConfigurationInstance()
         {

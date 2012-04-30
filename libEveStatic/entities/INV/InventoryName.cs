@@ -31,35 +31,38 @@
  
  */
 
-using eveStatic;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveOnlineTools
+namespace libEveStatic.entities.INV
 {
-    public class EveOnlineToolsCore : ApplicationCore
+    /*
+CREATE TABLE dbo.invNames
+(
+    itemID     bigint         NOT NULL,
+    itemName   nvarchar(200)  NOT NULL,
+    
+    CONSTRAINT invNames_PK PRIMARY KEY CLUSTERED (itemID)
+)
+
+ALTER TABLE invNames ADD CONSTRAINT invNames_FK_item FOREIGN KEY (itemID) REFERENCES invItems(itemID) 
+    */
+
+
+    public class InventoryNameMapper : SubclassMap<InventoryName> 
     {
-        public override void Initialize()
+        public InventoryNameMapper() 
         {
-            base.Initialize();
-            //_storeProvider = new ZippedFileStreamProvider(new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "store.dat")));
-            //Register<IFileStreamProvider>(_storeProvider);
-            //Register(new ResultTypeRepository());
-            //Register<IEveApiTarget>(new EveApiCachedFallbackTarget());
-            RegisterService(new EveStaticCore());
+            Table("invNames");
+            KeyColumn("itemID");
+
+            //Id(x => x.Id, "");
+            Map(x => x.Name, "itemName").Not.Nullable().Length(200);
         }
+    }
 
-        //private ZippedFileStreamProvider _storeProvider;
-        
-
-        public override void Dispose()
-        {
-            //base.Dispose();
-            //_storeProvider.Dispose();
-
-            GetService<EveStaticCore>().Dispose();
-
-        }
-
-
+    public class InventoryName : InventoryItem
+    {
+        //public virtual long Id { get; set; }
+        public virtual string Name { get; set; }
     }
 }

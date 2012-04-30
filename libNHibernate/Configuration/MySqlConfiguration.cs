@@ -30,6 +30,8 @@
     Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>. 
  
  */
+
+using System.Xml.Serialization;
 using FluentNHibernate.Cfg.Db;
 
 namespace libNHibernate.Configuration
@@ -37,6 +39,11 @@ namespace libNHibernate.Configuration
 
     public class MySqlConfiguration : AbstractDatabaseConfiguration<MySQLConfiguration, MySQLConnectionStringBuilder> 
     {
+        [XmlElement("server")] public string Server { get; set; } 
+        [XmlElement("user")] public string User { get; set; }
+        [XmlElement("password")] public string Password { get; set; }
+        [XmlElement("schema")] public string Schema { get; set; }
+
         protected override MySQLConfiguration GetConfigurationInstance()
         {
             return MySQLConfiguration.Standard;

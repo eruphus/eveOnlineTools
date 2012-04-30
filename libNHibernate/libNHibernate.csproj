@@ -54,13 +54,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\AbstractDatabaseConfiguration.cs" />
-    <Compile Include="Configuration\BaseConfiguration.cs" />
     <Compile Include="Configuration\DatabaseConfiguration.cs" />
     <Compile Include="Configuration\MsSqlConfiguration.cs" />
     <Compile Include="Configuration\MySqlConfiguration.cs" />
     <Compile Include="DbSession.cs" />
     <Compile Include="IDbTransaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libUtils\libUtils.csproj">
+      <Project>{BB664387-4705-436B-9895-CAF5A28B49C8}</Project>
+      <Name>libUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

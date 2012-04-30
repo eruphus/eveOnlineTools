@@ -59,16 +59,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\eveStatic\mapping\eveStaticMapping.csproj">
-      <Project>{171276CB-46A0-409B-9918-6D7C9E242E4C}</Project>
-      <Name>eveStaticMapping</Name>
-    </ProjectReference>
     <ProjectReference Include="..\libEveOnlineTools\libEveOnlineTools.csproj">
       <Project>{5FF15B8A-FDEB-40D0-B4BA-8139ACB950B9}</Project>
       <Name>libEveOnlineTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\libEveStatic\libEveStatic.csproj">
+      <Project>{171276CB-46A0-409B-9918-6D7C9E242E4C}</Project>
+      <Name>libEveStatic</Name>
     </ProjectReference>
     <ProjectReference Include="..\libNHibernate\libNHibernate.csproj">
       <Project>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</Project>

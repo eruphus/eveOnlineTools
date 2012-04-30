@@ -31,7 +31,6 @@
  
  */
 
-using System.Xml.Serialization;
 using FluentNHibernate.Cfg.Db;
 
 namespace libNHibernate.Configuration
@@ -54,20 +53,7 @@ namespace libNHibernate.Configuration
             return GetConfigurationInstance().ConnectionString(ApplyConnectionString);
         }
 
-        [XmlElement("server")]
-        public string Server { get; set; }
-        
-        [XmlElement("port")]
-        public int Port { get; set; }
-        
-        [XmlElement("user")]
-        public string User { get; set; }
-        
-        [XmlElement("password")]
-        public string Password { get; set; }
 
-        [XmlElement("schema")]
-        public string Schema { get; set; }
 
 
     }

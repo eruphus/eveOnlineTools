@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\ApplicationCore.cs" />
+    <Compile Include="Core\BaseConfiguration.cs" />
+    <Compile Include="Core\IConfigurationProvider.cs" />
+    <Compile Include="Core\PluginBase.cs" />
     <Compile Include="Core\ServiceHolder.cs" />
     <Compile Include="Core\TypedServiceHolder.cs" />
     <Compile Include="I18n\ExceptionalContext.cs" />

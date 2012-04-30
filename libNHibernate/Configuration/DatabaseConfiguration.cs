@@ -32,6 +32,7 @@
  */
 
 using System.Xml.Serialization;
+using libUtils.Core;
 
 namespace libNHibernate.Configuration
 {

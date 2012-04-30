@@ -31,24 +31,41 @@
  
  */
 
-using System.Configuration;
-using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
+using FluentNHibernate.Mapping;
 
-namespace libNHibernate.Configuration
+namespace libEveStatic.entities.CRP
 {
-    public abstract class BaseConfiguration<T> : IConfigurationSectionHandler where T:BaseConfiguration<T>
+    /*
+        CREATE TABLE dbo.crpActivities
+    (
+      activityID      tinyint,
+      activityName    nvarchar(100),
+      description     nvarchar(1000),
+
+      CONSTRAINT crpActivities_PK PRIMARY KEY CLUSTERED (activityID)
+    )    
+     
+     */
+
+
+    public class CorporationActivityMapper : ClassMap<CorporationActivity>
     {
-        public object Create(object parent, object configContext, XmlNode section)
+
+        public CorporationActivityMapper()
         {
-            var ser = new XmlSerializer(GetType(), new XmlRootAttribute(section.Name));
-            return ser.Deserialize(new XmlTextReader(new StringReader(section.OuterXml)));
+            Table("crpActivities");
+            Id(x => x.Id, "activityID");
+
+            Map(x => x.Name, "activityName").Length(100).Nullable();
+            Map(x => x.Description, "description").Length(1000).Nullable();
         }
 
-        public static T Load(string name) 
-        {
-            return (T)ConfigurationManager.GetSection(name);
-        }
+    }
+
+    public class CorporationActivity
+    {
+        public virtual int Id { get; set; }
+        public virtual string Name{ get; set; }
+        public virtual string Description { get; set; }
     }
 }

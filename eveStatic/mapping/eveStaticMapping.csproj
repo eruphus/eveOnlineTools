@@ -32,10 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentNHibernate">
-      <HintPath>..\..\libs\FluentNHibernate.dll</HintPath>
+      <HintPath>..\libs\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\libs\NHibernate.dll</HintPath>
+      <HintPath>..\libs\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -123,11 +123,11 @@
     <Compile Include="types\Location.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libNHibernate\libNHibernate.csproj">
+    <ProjectReference Include="..\libNHibernate\libNHibernate.csproj">
       <Project>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</Project>
       <Name>libNHibernate</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\libUtils\libUtils.csproj">
+    <ProjectReference Include="..\libUtils\libUtils.csproj">
       <Project>{BB664387-4705-436B-9895-CAF5A28B49C8}</Project>
       <Name>libUtils</Name>
     </ProjectReference>

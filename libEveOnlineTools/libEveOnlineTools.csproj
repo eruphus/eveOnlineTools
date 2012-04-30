@@ -40,14 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EveApiCore.cs" />
+    <Compile Include="EveOnlineToolsConfiguration.cs" />
+    <Compile Include="EveOnlineToolsCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\eveStatic\mapping\eveStaticMapping.csproj">
-      <Project>{171276CB-46A0-409B-9918-6D7C9E242E4C}</Project>
-      <Name>eveStaticMapping</Name>
-    </ProjectReference>
     <ProjectReference Include="..\libNHibernate\libNHibernate.csproj">
       <Project>{4B30A9B5-A670-4F2D-A032-64190DFAB22B}</Project>
       <Name>libNHibernate</Name>

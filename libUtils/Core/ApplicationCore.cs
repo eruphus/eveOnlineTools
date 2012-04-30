@@ -32,20 +32,33 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using libUtils.I18n;
 
 namespace libUtils.Core
 {
-    public class ApplicationCore : IDisposable
+
+    public abstract class ApplicationCore : IDisposable
     {
-        private TypedServiceHolder _serviceRepository;
+        private readonly TypedServiceHolder _serviceRepository;
+        private List<IPlugin> _plugins;
 
         protected ApplicationCore()
         {
             if (!_lock) throw new Exception("creation via constructor not allowed");
             _serviceRepository = new TypedServiceHolder();
+            _plugins = new List<IPlugin>();
+        }
 
+
+        IEnumerable<Type> GetPluginTypes() 
+        {
+            return from a in AppDomain.CurrentDomain.GetAssemblies()
+                   from t in a.GetTypes()
+                   where typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract
+                   select t;
         }
 
         private static readonly object CreationLock = new object();
@@ -62,6 +75,7 @@ namespace libUtils.Core
                 _lock = false;
                 _singleton = newCore;
                 newCore.Initialize();
+                newCore.LoadPlugins();
                 return newCore;
             }
         }
@@ -69,26 +83,40 @@ namespace libUtils.Core
         public static ApplicationCore Instance { get { return _singleton; } }
         private static ApplicationCore _singleton;
 
-        public static void RegisterService<T> (T service)
+        private void LoadPlugins()
+        {
+            foreach (var pluginType in GetPluginTypes())
+            {
+                var plugin = (IPlugin)Activator.CreateInstance(pluginType);
+                
+                plugin.Initialize();
+                _plugins.Add( plugin);
+            }
+            
+            
+        }
+
+        public static void RegisterService<TService>(TService service)
         {
             Instance._serviceRepository.Register(service);
         }
 
-        public static T GetService<T>()
+        public static TService GetService<TService>()
         {
-            return Instance._serviceRepository.GetService<T>();
+            return Instance._serviceRepository.GetService<TService>();
         }
 
         public virtual void Initialize()
         {
             RegisterService<ICultureProvider>(new StaticCultureProvider(CultureInfo.GetCultureInfo("de")));
+            RegisterService<IConfigurationProvider>(new ConfigurationProvider());
         }
 
         public static CultureInfo CurrentCulture  { get { return GetService<ICultureProvider>().CurrentCulture; } }
 
         public virtual void Dispose()
         {
-
+            foreach (var plugin in _plugins) plugin.Dispose();
         }
     }
 }

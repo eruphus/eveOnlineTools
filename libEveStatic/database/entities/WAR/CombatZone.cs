@@ -31,51 +31,55 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.WAR
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+
+    /*
+CREATE TABLE dbo.warCombatZones
+(
+  combatZoneID    int            NOT NULL DEFAULT -1,
+  combatZoneName  nvarchar(100)  NULL,
+  factionID       int            NULL,
+  centerSystemID  int            NULL,
+  description     nvarchar(500)  NULL,
+  CONSTRAINT combatZones_PK PRIMARY KEY CLUSTERED (combatZoneID)
+)     * 
+     * 
+     * 
+     */
+
+    public class CombatZoneMapper : ClassMap<CombatZone>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public CombatZoneMapper ()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
+            Table("warCombatZones");
+            Id(x => x.Id, "combatZoneID").Not.Nullable();
+
+            Map(x => x.FactionId, "factionID").Nullable();
+            Map(x => x.CenterSytemId, "centerSystemID").Nullable();
+
+            Map(x => x.CombatZoneName, "combatZoneName").Length(100).Nullable();
+            Map(x => x.Description, "description").Length(500).Nullable();
         }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+    }
 
-        }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    public class CombatZone 
+    {
+        public virtual int Id { get; set; }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+        public virtual int FactionId { get; set; }
+        public virtual int CenterSytemId { get; set; }
+        
+        public virtual string CombatZoneName { get; set; }
+        public virtual string Description { get; set; }
 
-        public override void Dispose()
+        public override string ToString()
         {
-            if (_session !=null) _session.Dispose();
+            return string.Format("[{0}] {1}", Id, CombatZoneName);
         }
     }
 }

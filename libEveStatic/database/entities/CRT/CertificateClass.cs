@@ -31,51 +31,43 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CRT
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.crtClasses
+(
+  classID      int,
+  description  nvarchar(500),
+  className    nvarchar(256),
+  
+  CONSTRAINT crtClasses_PK PRIMARY KEY CLUSTERED (classID)
+)
+    */
+
+
+    public class CertificateClassMapper : ClassMap<CertificateClass>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public CertificateClassMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("crtClasses");
 
-        }
+            Id(x => x.Id, "classID");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
+            Map(x => x.Description, "description").Nullable().Length(500);
+            Map(x => x.CategoryName, "categoryName").Nullable().Length(256);
         }
     }
+
+    public class CertificateClass 
+    {
+        public virtual int Id { get; set; }
+        public virtual string Description { get; set; }
+        public virtual string CategoryName { get; set; }
+
+
+    }
+
 }

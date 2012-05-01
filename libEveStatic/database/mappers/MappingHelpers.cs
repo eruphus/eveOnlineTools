@@ -31,51 +31,41 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using System;
+using System.Linq.Expressions;
+using FluentNHibernate.Mapping;
+using libEveStatic.database.types;
 
-namespace libEveStatic
+namespace libEveStatic.database.mappers
 {
-    public sealed class EveStaticDatabase : PluginBase
+    public class ClassMapper<T> : ClassMap<T>
     {
 
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        protected void MapLocation<TComponent>(Expression<Func<T, TComponent>> redir, string xColumnName, string yColumnName, string zColumnName) where TComponent : Location
         {
-            get
+            Component(redir, m =>
             {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
-
+                m.Map(x => x.X, xColumnName).Access.BackingField();
+                m.Map(x => x.Y, yColumnName).Access.BackingField();
+                m.Map(x => x.Z, zColumnName).Access.BackingField();
+            });
         }
 
-        public static IDbTransaction OpenTransaction()
+    }
+
+    public class SubclassMapper<T> : SubclassMap<T>
+    {
+
+        protected void MapLocation<TComponent>(Expression<Func<T,TComponent>> redir , string xColumnName, string yColumnName, string zColumnName) where TComponent : Location
         {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
+            Component(redir, m =>
+                                 {  
+                                     m.Map(x => x.X, xColumnName).Access.BackingField();
+                                     m.Map(x => x.Y, yColumnName).Access.BackingField();
+                                     m.Map(x => x.Z, zColumnName).Access.BackingField();
+                                 });
         }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        
     }
 }

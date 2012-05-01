@@ -31,51 +31,43 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+CREATE TABLE dbo.invNames
+(
+    itemID     bigint         NOT NULL,
+    itemName   nvarchar(200)  NOT NULL,
+    
+    CONSTRAINT invNames_PK PRIMARY KEY CLUSTERED (itemID)
+)
+
+ALTER TABLE invNames ADD CONSTRAINT invNames_FK_item FOREIGN KEY (itemID) REFERENCES invItems(itemID) 
+    */
+
+
+    public class InventoryNameMapper : SubclassMap<InventoryName> 
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public InventoryNameMapper() 
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
+            Table("invNames");
+            KeyColumn("itemID");
+
+            //Id(x => x.Id, "");
+            Map(x => x.Name, "itemName").Not.Nullable().Length(200);
         }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+    }
 
-        }
+    public class InventoryName : InventoryItem
+    {
+        //public virtual long Id { get; set; }
+        public virtual string Name { get; set; }
 
-        public static IDbTransaction OpenTransaction()
+        public override string ToString()
         {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
+            return string.Format("[{0}] {1}",Id, Name);
         }
     }
 }

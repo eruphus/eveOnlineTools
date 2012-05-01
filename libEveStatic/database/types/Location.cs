@@ -31,51 +31,46 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
-
-namespace libEveStatic
+namespace libEveStatic.database.types
 {
-    public sealed class EveStaticDatabase : PluginBase
+    public class Location
     {
+        public Location() : this(0,0,0) {}
+        public Location(decimal x, decimal y, decimal z) { X = x; Y = y; Z = z; }
 
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public decimal X { get; private set; }
+        public decimal Y { get; private set; }
+        public decimal Z { get; private set; }
+        
+        public bool Equals(Location other)
         {
-            get
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return other.X == X && other.Y == Y && other.Z == Z;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != typeof (Location)) return false;
+            return Equals((Location) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
             {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
+                int result = X.GetHashCode();
+                result = (result*397) ^ Y.GetHashCode();
+                result = (result*397) ^ Z.GetHashCode();
+                return result;
             }
         }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
 
-        }
-
-        public static IDbTransaction OpenTransaction()
+        public override string ToString()
         {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
+            return string.Format("Location ({0}/{1}/{2})", X, Y, Z);
         }
     }
 }

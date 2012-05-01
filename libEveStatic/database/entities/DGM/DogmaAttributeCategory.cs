@@ -31,51 +31,46 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.DGM
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.dgmAttributeCategories
+(
+    categoryID           tinyint,
+    categoryName         nvarchar(50),
+    categoryDescription  nvarchar(200),  
+
+  CONSTRAINT dgmAttributeCategories_PK PRIMARY KEY CLUSTERED (categoryID)
+)
+     * 
+     * 
+
+    */
+
+
+    public class DogmaAttributeCategoryMapper : ClassMap<DogmaAttributeCategory>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public DogmaAttributeCategoryMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("dgmAttributeCategories");
+
+            Id(x => x.Id, "categoryID");
+
+            Map(x => x.CategoryName, "categoryName").Length(50);
+            Map(x => x.Description, "categoryDescription").Length(200);
 
         }
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    public class DogmaAttributeCategory 
+    {
+        public virtual int Id { get; set; }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+        public virtual string CategoryName { get; set; }
+        public virtual string Description { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
     }
 }

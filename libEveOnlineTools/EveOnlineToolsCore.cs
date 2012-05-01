@@ -38,8 +38,8 @@ namespace libEveOnlineTools
     public class EveOnlineToolsCore : ApplicationCore
     {
 
-        private const string EveStaticDatabaseConfigSection = "eve-online-tools";
-        private  EveOnlineToolsConfiguration Configuration { get; set; }
+        private const string EveOnlineToolsConfigSection = "eve-online-tools";
+        
 
         public override void Initialize()
         {
@@ -48,19 +48,13 @@ namespace libEveOnlineTools
             //Register<IFileStreamProvider>(_storeProvider);
             //Register(new ResultTypeRepository());
             //Register<IEveApiTarget>(new EveApiCachedFallbackTarget());
-
-            Configuration = GetService<IConfigurationProvider>().GetConfiguration<EveOnlineToolsConfiguration>(EveStaticDatabaseConfigSection);
+            RegisterService<IConfigurationProvider>(new GroupConfigurationProvider(EveOnlineToolsConfigSection));
+            
         }
 
         //private ZippedFileStreamProvider _storeProvider;
 
-        public static EveOnlineToolsConfiguration Config { get { return Instance.Configuration; } }
 
-
-        public new static EveOnlineToolsCore Instance
-        {
-            get { return (EveOnlineToolsCore) ApplicationCore.Instance; }
-        }
 
         public override void Dispose()
         {

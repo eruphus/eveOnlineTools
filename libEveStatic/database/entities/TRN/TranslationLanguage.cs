@@ -31,51 +31,42 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.TRN
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.trnTranslationLanguages
+(
+    numericLanguageID   int            NOT NULL,
+    languageID          varchar(50)    NULL,
+    languageName        nvarchar(200)  NULL,
+    
+    CONSTRAINT trnTranslationLanguages_PK PRIMARY KEY CLUSTERED (numericLanguageID) 
+)*/
+   
+
+    public class TranslationLanguageMapper : ClassMap<TranslationLanguage>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public TranslationLanguageMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
+            Table("trnTranslationLanguages");
             
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Id(x => x.Id, "numericLanguageID");
 
-        }
-
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
+            Map(x => x.LanguageId, "languageID").Nullable().Length(50);
+            Map(x => x.LanguageName, "languageName").Nullable().Length(200);
         }
     }
+
+
+    public class TranslationLanguage 
+    {
+        public virtual int Id { get; set; }
+        public virtual string LanguageId { get; set; }
+        public virtual string LanguageName { get; set; }
+
+
+    }  
 }

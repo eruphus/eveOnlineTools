@@ -31,51 +31,38 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using libEveStatic.database.mappers;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.MAP
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+CREATE TABLE dbo.mapLocationWormholeClasses
+(
+  locationID       int      NOT NULL,
+  --
+  wormholeClassID  tinyint  NULL,
+
+  CONSTRAINT mapLocationWormholeClasses_PK PRIMARY KEY CLUSTERED (locationID)
+)
+     
+     */
+
+    public class WormholeClassMapper : ClassMapper<WormholeClass>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public WormholeClassMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("mapLocationWormholeClasses");
+            Id(x => x.Id, "locationID");
 
+            Map(x => x.WormholeClassId, "wormholeClassID");
         }
+        
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+    public class WormholeClass 
+    {
+        public virtual int Id { get; set; }
+        public virtual byte WormholeClassId { get; set; }
     }
 }

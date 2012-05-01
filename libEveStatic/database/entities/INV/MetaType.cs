@@ -31,51 +31,50 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.invMetaTypes
+(
+  typeID        int,
+  --
+  parentTypeID  int,
+  metaGroupID   smallint,
+
+  CONSTRAINT invMetaTypes_PK PRIMARY KEY CLUSTERED(typeID)
+)
+
+
+ALTER TABLE invMetaTypes ADD CONSTRAINT invMetaTypes_FK_type FOREIGN KEY (typeID) REFERENCES invTypes(typeID)
+ALTER TABLE invMetaTypes ADD CONSTRAINT invMetaTypes_FK_parentType FOREIGN KEY (parentTypeID) REFERENCES invTypes(typeID)
+ALTER TABLE invMetaTypes ADD CONSTRAINT invMetaTypes_FK_metaGroup FOREIGN KEY (metaGroupID) REFERENCES invMetaGroups(metaGroupID)
+
+ 
+     * 
+     */
+
+    public class MetaTypeMapper : SubclassMap<MetaType>
+    {
+        public MetaTypeMapper()
+        {
+            Table("invMetaTypes");
+            KeyColumn("typeID");
+
+            References(x => x.Parent, "parentTypeID");
+            References(x => x.MetaGroup, "metaGroupID");
+
+        }
+    }
+
+
+    public class MetaType : InventoryType
     {
 
-        private DbSession _session;
+        public virtual InventoryType Parent { get; set; }
+        public virtual MetaGroup MetaGroup { get; set; }
 
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
-        {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
-
-        }
-
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
     }
 }

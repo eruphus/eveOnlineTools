@@ -31,51 +31,49 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
+using libEveStatic.database.entities.EVE;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CHR
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+     
+CREATE TABLE dbo.chrRaces
+(
+  raceID            tinyint,
+  raceName          varchar(100),
+  description       varchar(1000),
+  iconID            int,
+  shortDescription  varchar(500),
+
+  CONSTRAINT chrRaces_PK PRIMARY KEY CLUSTERED (raceID)  
+)
+    ALTER TABLE chrRaces ADD CONSTRAINT chrRaces_FK_graphic FOREIGN KEY (iconID) REFERENCES eveIcons(iconID)
+     * */
+
+    public class RaceMapper : ClassMap<Race>
+    {
+        public RaceMapper()
+        {
+            Table("chrRaces");
+            Id(x => x.Id, "raceID");
+
+            References(x => x.Icon, "iconID");
+
+            Map(x => x.Name, "raceName").Length(100).Nullable();
+            Map(x => x.Description, "description").Length(1000).Nullable();
+            Map(x => x.ShortDescription, "shortDescription").Length(500).Nullable();
+        }
+    }
+
+    public class Race 
     {
 
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
-        {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
-
-        }
-
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual int Id { get; set; }
+        public virtual string Name { get; set; }
+        public virtual string Description{ get; set; }
+        public virtual Icon Icon { get; set; }
+        public virtual string ShortDescription { get; set; }
     }
 }

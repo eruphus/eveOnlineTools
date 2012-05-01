@@ -31,51 +31,45 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
+using System.IO;
+using libEveStatic.pictures;
 using libUtils.Core;
 
 namespace libEveStatic
 {
-    public sealed class EveStaticDatabase : PluginBase
+    public class EveStaticPictures : PluginBase
     {
 
-        private DbSession _session;
+        private const string EveStaticPicturesConfigSection = "pictures";
+        private EveStaticPicturesConfiguration _configuration;
 
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        private PictureProvider _renderProvider;
+        private MultiSizePictureProvider _typeProvide;
+
+        private EveStaticPicturesConfiguration Configuration 
         {
             get
             {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
+                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<EveStaticPicturesConfiguration>(EveStaticPicturesConfigSection));
             }
         }
-            
+
+        
         public override void Initialize()
         {
             base.Initialize();
             ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
-
         }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+        private bool IsValidPictureSource(string target) { return !string.IsNullOrEmpty(target) && Directory.Exists(target); }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+        public bool HasRenderRepository { get { return IsValidPictureSource(Configuration.RendersDirectory); } }
+        public bool HasTypeRepository { get { return IsValidPictureSource(Configuration.TypesDirectory); } }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+
+        public PictureProvider RenderRepository { get { return _renderProvider ?? (_renderProvider = new PictureProvider(new DirectoryInfo(Configuration.RendersDirectory))); } }
+        public MultiSizePictureProvider TypeRepository { get { return _typeProvide ?? (_typeProvide = new MultiSizePictureProvider(new DirectoryInfo(Configuration.TypesDirectory))); } }
+
+ 
     }
 }

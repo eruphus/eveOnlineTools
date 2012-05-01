@@ -57,7 +57,7 @@ namespace libUtils.Core
         {
             return from a in AppDomain.CurrentDomain.GetAssemblies()
                    from t in a.GetTypes()
-                   where typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract
+                   where !t.IsAbstract && typeof(IPlugin).IsAssignableFrom(t) 
                    select t;
         }
 
@@ -109,7 +109,7 @@ namespace libUtils.Core
         public virtual void Initialize()
         {
             RegisterService<ICultureProvider>(new StaticCultureProvider(CultureInfo.GetCultureInfo("de")));
-            RegisterService<IConfigurationProvider>(new ConfigurationProvider());
+            
         }
 
         public static CultureInfo CurrentCulture  { get { return GetService<ICultureProvider>().CurrentCulture; } }

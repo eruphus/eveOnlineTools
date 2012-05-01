@@ -31,51 +31,17 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
+using System.Xml.Serialization;
 using libUtils.Core;
 
-namespace libEveStatic
+namespace libEveStatic.pictures
 {
-    public sealed class EveStaticDatabase : PluginBase
+    public class EveStaticPicturesConfiguration : BaseConfiguration<EveStaticPicturesConfiguration>
     {
+        [XmlElement("renders")]
+        public string RendersDirectory { get; set; }
 
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
-        {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
-
-        }
-
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        [XmlElement("types")]
+        public string TypesDirectory { get; set; }
     }
 }

@@ -34,7 +34,9 @@
 using System.Linq;
 using libEveOnlineTools;
 using libEveStatic;
-using libEveStatic.entities.TRN;
+using libEveStatic.database.entities.CRP;
+using libEveStatic.database.entities.INV;
+using libEveStatic.database.entities.TRN;
 using libUtils.Core;
 
 namespace EveOnlineToolsTestConsole
@@ -46,6 +48,11 @@ namespace EveOnlineToolsTestConsole
 
             using (ApplicationCore.Create<EveOnlineToolsCore>())
             {
+
+                var allTypes = (from g in EveStaticDatabase.Query<InventoryType>() where g.Id < 10000 select g).ToList();
+
+
+                var allNpcCorps = (from g in EveStaticDatabase.Query<NpcCorporation>() where g.Name.StartsWith("Urban") select g).ToList();
 
                 var allItems = (from g in EveStaticDatabase.Query<TranslationLanguage>() select g).ToList();
                 var allColumns = (from g in EveStaticDatabase.Query<TranslationColumn>() select g).ToList();

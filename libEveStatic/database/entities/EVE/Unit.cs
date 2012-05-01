@@ -31,51 +31,48 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.EVE
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.eveUnits
+(
+  unitID       tinyint,
+  unitName     varchar(100),
+  displayName  varchar(50),
+  description  varchar(1000),
+
+  CONSTRAINT eveUnits_PK PRIMARY KEY CLUSTERED (unitID)
+)
+
+    */
+
+    public class UnitMapper : ClassMap<Unit>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public UnitMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("eveUnits");
+
+            Id(x => x.Id, "unitID");
+
+
+
+            Map(x => x.UnitName, "unitName").Length(100);
+            Map(x => x.Description, "description").Length(1000);
+            Map(x => x.DisplayName, "displayName").Length(50);
 
         }
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    public class Unit 
+    {
+        public virtual int Id { get; set; }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+        public virtual string UnitName { get; set; }
+        public virtual string Description { get; set; }
+        public virtual string DisplayName { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
     }
 }

@@ -31,51 +31,39 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using libEveStatic.database.mappers;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.MAP
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.mapLocationScenes
+(
+  locationID  int      NOT NULL,
+  --
+  graphicID   int      NULL,
+  
+  CONSTRAINT mapLocationScenes_PK_ PRIMARY KEY CLUSTERED (locationID)
+)
+
+
+    */
+
+    public class LocationSceneMapper : ClassMapper<LocationScene>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public LocationSceneMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("mapLocationScenes");
+            Id(x => x.Id, "locationID");
 
+            Map(x => x.GraphicId, "graphicID");
         }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+    public class LocationScene 
+    {
+        public virtual int Id { get; set; }
+        public virtual int GraphicId { get; set; }
     }
 }

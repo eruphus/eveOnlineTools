@@ -31,51 +31,48 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.invUniqueNames
+(
+  itemID    int                                          NOT NULL,
+  itemName  nvarchar(200)  COLLATE Latin1_General_CI_AI  NOT NULL,
+  --
+  groupID   int                                          NULL,
+  --
+  CONSTRAINT invUniqueNames_PK PRIMARY KEY CLUSTERED (itemID)
+)
+CREATE UNIQUE NONCLUSTERED INDEX invUniqueNames_UQ ON dbo.invUniqueNames (itemName)
+CREATE NONCLUSTERED INDEX invUniqueNames_IX_GroupName ON dbo.invUniqueNames (groupID, itemName)
+     * 
+     * 
+     * 
+ALTER TABLE invUniqueNames ADD CONSTRAINT invUniqueNames_FK_item FOREIGN KEY (itemID) REFERENCES invItems(itemID)
+ALTER TABLE invUniqueNames ADD CONSTRAINT invUniqueNames_FK_group FOREIGN KEY (groupID) REFERENCES invGroups(groupID)
+    */
+
+    public class UniqueNameMapper : SubclassMap<UniqueName>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public UniqueNameMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
+            Table("invUniqueNames");
             
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            KeyColumn("itemID");
 
-        }
+            References(x => x.Group, "groupID").Nullable();
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
+            Map(x => x.ItemName, "itemName").Length(200).Not.Nullable();
         }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+    public class UniqueName : InventoryItem
+    {
+        public virtual InventoryGroup Group { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual string ItemName { get; set; }
     }
 }

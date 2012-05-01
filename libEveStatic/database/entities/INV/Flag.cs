@@ -31,51 +31,47 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+     * 
+CREATE TABLE dbo.invFlags
+(
+  flagID    smallint,
+  flagName  varchar(200),
+  flagText  varchar(100),
+  orderID   int,
+
+  CONSTRAINT invFlags_PK PRIMARY KEY CLUSTERED (flagID)
+)
+ 
+     * 
+     * */
+    public class FlagMapper : ClassMap<Flag>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public FlagMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
+            Table("invFlags");
             
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+
+            Id(x => x.Id, "flagID");
+
+            Map(x => x.FlagName, "flagName").Length(200);
+            Map(x => x.FlagText, "flagText").Length(100);
+            Map(x => x.OrderId, "orderID");
 
         }
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    public class Flag 
+    {
+        public virtual long Id { get; set; }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual string FlagName { get; set; }
+        public virtual string FlagText { get; set; }
+        public virtual int OrderId { get; set; }
     }
 }

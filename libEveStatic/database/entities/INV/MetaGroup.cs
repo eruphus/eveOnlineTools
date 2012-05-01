@@ -31,51 +31,54 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
+using libEveStatic.database.entities.EVE;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+
+CREATE TABLE dbo.invMetaGroups
+(
+  metaGroupID    smallint,
+  --
+  metaGroupName  nvarchar(100),
+  description    nvarchar(1000),
+  iconID         int,
+
+  CONSTRAINT invMetaGroups_PK PRIMARY KEY CLUSTERED (metaGroupID)
+)
+
+     * 
+     * 
+ALTER TABLE invMetaGroups ADD CONSTRAINT invMetaGroups_FK_graphic FOREIGN KEY (iconID) REFERENCES eveIcons(iconID)
+
+    */
+
+    public class MetaGroupMapper : ClassMap<MetaGroup>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public MetaGroupMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("invMetaGroups");
 
-        }
+            Id(x => x.Id, "metaGroupID");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+            References(x => x.Icon, "iconId");
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
+            Map(x => x.MetaGroupName, "metaGroupName").Length(100);
+            Map(x => x.Description, "description").Length(1000);
         }
+    }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+
+    public class MetaGroup 
+    {
+        public virtual int Id { get; set; }
+
+        public virtual Icon Icon { get; set; }
+
+        public virtual string MetaGroupName { get; set; }
+        public virtual string Description { get; set; }
+        
     }
 }

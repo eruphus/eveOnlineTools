@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EveOnlineToolsConfiguration.cs" />
     <Compile Include="EveOnlineToolsCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

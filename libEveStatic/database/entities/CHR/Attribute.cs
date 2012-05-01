@@ -31,51 +31,58 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
+using libEveStatic.database.entities.EVE;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CHR
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+
+CREATE TABLE dbo.chrAttributes
+(
+  attributeID       tinyint,
+  attributeName     varchar(100),
+  description       varchar(1000),
+  iconID            int,
+  shortDescription  nvarchar(500),
+  notes             nvarchar(500),
+
+  CONSTRAINT chrAttributes_PK PRIMARY KEY CLUSTERED (attributeID)
+)
+
+ALTER TABLE chrAttributes ADD CONSTRAINT chrAttributes_FK_graphic FOREIGN KEY (iconID) REFERENCES eveIcons(iconID)
+
+    */
+
+
+    public class AttributeMapper : ClassMap<Attribute>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public AttributeMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("chrAttributes");
+
+            Id(x => x.Id, "attributeID");
+
+            References(x => x.Icon, "iconID");
+
+            Map(x => x.AttributeName, "attributeName").Length(100);
+            Map(x => x.Description, "description").Length(1000);
+            Map(x => x.ShortDescription, "shortDescription").Length(500);
+            Map(x => x.Notes, "notes").Length(500);
 
         }
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    public class Attribute 
+    {
+        public virtual int Id { get; set; }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+        public virtual Icon Icon { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual string AttributeName { get; set; }
+        public virtual string Description { get; set; }
+        public virtual string ShortDescription { get; set; }
+        public virtual string Notes { get; set; }
+
     }
 }

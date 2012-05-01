@@ -31,51 +31,40 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.INV
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+CREATE TABLE dbo.invControlTowerResourcePurposes
+(
+  purpose      tinyint,
+  purposeText  varchar(100),
+  --
+  CONSTRAINT invControlTowerResourcePurposes_PK PRIMARY KEY CLUSTERED (purpose)
+)
+     * 
+     * 
+
+    */
+
+
+    public class ControlTowerResourcePurposeMapper : ClassMap<ControlTowerResourcePurpose>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public ControlTowerResourcePurposeMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("invControlTowerResourcePurposes");
 
-        }
+            Id(x => x.Id, "purpose");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
+            Map(x => x.PurposeText, "purposeText");
         }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+    public class ControlTowerResourcePurpose 
+    {
+        public virtual int Id { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual int PurposeText { get; set; }
     }
 }

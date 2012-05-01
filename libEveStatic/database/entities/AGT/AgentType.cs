@@ -31,51 +31,39 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.AGT
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.agtAgentTypes
+(
+  agentTypeID  int,
+  agentType    varchar(50),
+  
+  CONSTRAINT agtAgentTypes_PK PRIMARY KEY CLUSTERED (agentTypeID)
+)     * 
+     * 
+     * 
+     */
+
+    public class AgentTypeMapper : ClassMap<AgentType>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public AgentTypeMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("agtAgentTypes");
 
-        }
+            Id(x => x.Id, "agentTypeID");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
+            Map(x => x.AgentTypeName, "agentType").Nullable().Length(50);
         }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+    public class AgentType 
+    {
+        public virtual int Id { get; set; }
+        public virtual string AgentTypeName  { get; set; }
     }
 }

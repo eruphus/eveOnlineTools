@@ -31,51 +31,46 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CRP
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+CREATE TABLE dbo.crpNPCDivisions
+(
+  divisionID    tinyint,
+  divisionName  nvarchar(100),
+  description   nvarchar(1000),
+  leaderType    nvarchar(100),
+
+  CONSTRAINT crpNPCDivisions_PK PRIMARY KEY CLUSTERED (divisionID)
+)
+
+    */
+
+    public class NpcDevisionMapper : ClassMap<NpcDevision>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public NpcDevisionMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("crpNPCDivisions");
+
+            Id(x => x.Id, "divisionID");
+
+            Map(x => x.DivisionName, "divisionName").Length(100);
+            Map(x => x.Description, "description").Length(1000);
+            Map(x => x.LeaderType, "leaderType").Length(100);
 
         }
+    }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
+    public class NpcDevision 
+    {
+        public virtual int Id { get; set; }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+        public virtual string DivisionName { get; set; }
+        public virtual string Description { get; set; }
+        public virtual string LeaderType { get; set; }
+
     }
 }

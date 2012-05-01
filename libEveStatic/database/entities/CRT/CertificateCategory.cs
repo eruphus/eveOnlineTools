@@ -31,51 +31,43 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CRT
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+CREATE TABLE dbo.crtCategories
+(
+  categoryID   tinyint,
+  description  nvarchar(500),
+  categoryName nvarchar(256),
+  
+  CONSTRAINT crtCategories_PK PRIMARY KEY CLUSTERED (categoryID)
+)
+
+
+    */
+    
+    public class CertificateCategoryMapper : ClassMap<CertificateCategory>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public CertificateCategoryMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("crtCategories");
 
-        }
+            Id(x => x.Id, "categoryID");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
+            Map(x => x.Description, "description").Nullable().Length(500);
+            Map(x => x.CategoryName, "categoryName").Nullable().Length(256);
         }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
 
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+    public class CertificateCategory 
+    {
+        public virtual int Id { get; set; }
+        public virtual string Description { get; set; }
+        public virtual string CategoryName { get; set; }
+
+
     }
 }

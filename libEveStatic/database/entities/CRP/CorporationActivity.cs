@@ -31,51 +31,41 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.CRP
 {
-    public sealed class EveStaticDatabase : PluginBase
+    /*
+        CREATE TABLE dbo.crpActivities
+    (
+      activityID      tinyint,
+      activityName    nvarchar(100),
+      description     nvarchar(1000),
+
+      CONSTRAINT crpActivities_PK PRIMARY KEY CLUSTERED (activityID)
+    )    
+     
+     */
+
+
+    public class CorporationActivityMapper : ClassMap<CorporationActivity>
     {
 
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public CorporationActivityMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("crpActivities");
+            Id(x => x.Id, "activityID");
 
+            Map(x => x.Name, "activityName").Length(100).Nullable();
+            Map(x => x.Description, "description").Length(1000).Nullable();
         }
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
+    }
 
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
-        }
+    public class CorporationActivity
+    {
+        public virtual int Id { get; set; }
+        public virtual string Name{ get; set; }
+        public virtual string Description { get; set; }
     }
 }

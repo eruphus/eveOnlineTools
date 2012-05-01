@@ -31,51 +31,46 @@
  
  */
 
-using System.Linq;
-using libNHibernate;
-using libNHibernate.Configuration;
-using libUtils.Core;
+using FluentNHibernate.Mapping;
 
-namespace libEveStatic
+namespace libEveStatic.database.entities.TRN
 {
-    public sealed class EveStaticDatabase : PluginBase
+
+    /*
+CREATE TABLE dbo.trnTranslationColumns
+(
+  tcGroupID      smallint       NULL,
+  tcID           smallint       NOT NULL,
+  tableName      nvarchar(256)  NOT NULL,
+  columnName     nvarchar(128)  NOT NULL,
+  masterID       nvarchar(128)  NULL,
+
+  CONSTRAINT translationColumns_PK PRIMARY KEY CLUSTERED (tcID)
+)
+   */
+
+    public class TranslationColumnMapper : ClassMap<TranslationColumn>
     {
-
-        private DbSession _session;
-
-        private const string EveStaticDatabaseConfigSection = "database";
-        private DatabaseConfiguration _configuration;
-        private DatabaseConfiguration Configuration 
+        public TranslationColumnMapper()
         {
-            get
-            {
-                return _configuration ?? (_configuration = ApplicationCore.GetService<IConfigurationProvider>().GetConfiguration<DatabaseConfiguration>(EveStaticDatabaseConfigSection));
-            }
-        }
-            
-        public override void Initialize()
-        {
-            base.Initialize();
-            ApplicationCore.RegisterService(this);
-            _session = new DbSession(Configuration);
-            _session.AddAssemblyByType(GetType());
+            Table("trnTranslationColumns");
 
-        }
+            Id(x => x.Id, "tcID");
 
-        public static IDbTransaction OpenTransaction()
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.OpenTransaction();
-        }
-
-        public static IQueryable<T> Query<T>() where T : class
-        {
-            return ApplicationCore.GetService<EveStaticDatabase>()._session.Query<T>(); 
-            
-        }
-
-        public override void Dispose()
-        {
-            if (_session !=null) _session.Dispose();
+            Map(x => x.TranslationColumnGroupId, "tcGroupID").Nullable();
+            Map(x => x.TableName, "tableName").Not.Nullable().Length(256);
+            Map(x => x.ColumnName, "columnName").Not.Nullable().Length(128);
+            Map(x => x.MasterID, "masterID").Nullable().Length(128);
         }
     }
+
+
+    public class TranslationColumn 
+    {
+        public virtual short Id { get; set; }
+        public virtual short TranslationColumnGroupId { get; set; }
+        public virtual string TableName { get; set; }
+        public virtual string ColumnName { get; set; }
+        public virtual string MasterID { get; set; }
+    }  
 }

@@ -33,6 +33,7 @@
 
 using System.Collections.Generic;
 using FluentNHibernate.Mapping;
+using libEveStatic.database.entities.INV;
 
 namespace libEveStatic.database.entities.PLA
 {
@@ -48,7 +49,13 @@ CREATE TABLE dbo.planetSchematics
 )
      * 
      * 
+CREATE TABLE dbo.planetSchematicsPinMap
+(
+  schematicID     smallint,
+  pinTypeID       int,
 
+  CONSTRAINT planetSchematicsPinMap_PK PRIMARY KEY CLUSTERED (schematicID, pinTypeID)
+)
     */
 
     public class PlanetSchematicMapper : ClassMap<PlanetSchematic>
@@ -62,7 +69,8 @@ CREATE TABLE dbo.planetSchematics
             Map(x => x.SchematicName, "schematicName").Nullable().Length(255);
             Map(x => x.CycleTime, "cycleTime").Nullable();
 
-            HasMany(x => x.Materials).KeyColumn("schematicID").AsBag().Not.Inverse(); 
+            HasMany(x => x.Materials).KeyColumn("schematicID").AsEntityMap("typeID");
+            HasManyToMany(x => x.ProducesIn).Table("planetSchematicsPinMap").ParentKeyColumn("schematicID").ChildKeyColumn("pinTypeID"); 
 
         }
     }
@@ -71,12 +79,14 @@ CREATE TABLE dbo.planetSchematics
     {
         public PlanetSchematic ()
         {
-            Materials = new List<PlanetSchematicsTypeMap>();
+            Materials = new Dictionary<InventoryType, PlanetSchematicsTypeMap>(); ;
+            ProducesIn = new List<InventoryType>(); ;
         }
 
         public virtual int Id { get; set; }
 
-        public virtual ICollection<PlanetSchematicsTypeMap> Materials { get; set; }
+        public virtual IDictionary<InventoryType, PlanetSchematicsTypeMap> Materials { get; set; }
+        public virtual ICollection<InventoryType> ProducesIn { get; set; }
 
 
         public virtual string SchematicName  { get; set; }
@@ -100,6 +110,11 @@ CREATE TABLE dbo.planetSchematics
         public override int GetHashCode()
         {
             return Id;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[{0}] {1}", Id, SchematicName);
         }
     }
 }

@@ -71,8 +71,7 @@ Todo: search a solution for locationID
             Table("agtAgents");
             KeyColumn("agentID");
 
-            HasManyToMany(x => x.ResearchTypes).AsBag().Not.Inverse().ParentKeyColumn("agentID").ChildKeyColumn("typeID")
-                .Table("agtResearchAgents");
+            HasManyToMany(x => x.ResearchTypes).AsBag().Not.Inverse().ParentKeyColumn("agentID").ChildKeyColumn("typeID").Table("agtResearchAgents");
 
             References(x => x.AgentType, "agentTypeID").Nullable();
             References(x => x.Division, "divisionID").Nullable();

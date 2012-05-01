@@ -31,6 +31,7 @@
  
  */
 
+using System.Collections.Generic;
 using FluentNHibernate.Mapping;
 using libEveStatic.database.entities.CHR;
 using libEveStatic.database.entities.EVE;
@@ -85,6 +86,45 @@ ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_enemy FOREIG
 ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_faction FOREIGN KEY (factionID) REFERENCES chrFactions(factionID)
 ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_icon FOREIGN KEY (iconID) REFERENCES eveIcons(iconID)
      * 
+     * 
+CREATE TABLE dbo.crpNPCCorporationDivisions
+(
+  corporationID   int,
+  divisionID      tinyint,
+  [size]          tinyint,
+
+  CONSTRAINT crpNPCCorporationDivisions_PK PRIMARY KEY CLUSTERED (corporationID, divisionID)
+)
+     * 
+     * 
+ALTER TABLE crpNPCCorporationDivisions ADD CONSTRAINT crpNPCCorporationDivisions_FK_corporation FOREIGN KEY (corporationID) REFERENCES crpNPCCorporations(corporationID)
+ALTER TABLE crpNPCCorporationDivisions ADD CONSTRAINT crpNPCCorporationDivisions_FK_division FOREIGN KEY (divisionID) REFERENCES crpNPCDivisions(divisionID)*      *
+     * 
+     * 
+CREATE TABLE dbo.crpNPCCorporationResearchFields
+(
+  skillID        int,
+  corporationID  int,
+
+  CONSTRAINT crpNPCCorporationResearchFields_PK PRIMARY KEY CLUSTERED (skillID, corporationID)
+)
+     * 
+ALTER TABLE crpNPCCorporationResearchFields ADD CONSTRAINT crpNPCCorporationResearchFields_FK_skill FOREIGN KEY (skillID) REFERENCES invTypes(typeID)
+ALTER TABLE crpNPCCorporationResearchFields ADD CONSTRAINT crpNPCCorporationResearchFields_FK_corporatioin FOREIGN KEY (corporationID) REFERENCES crpNPCCorporations(corporationID)
+
+     * 
+     * 
+CREATE TABLE dbo.crpNPCCorporationTrades
+(
+  corporationID  int,
+  typeID         int,
+  
+  CONSTRAINT crpNPCCorporationTrades_PK PRIMARY KEY CLUSTERED (corporationID, typeID)
+)
+
+ALTER TABLE dbo.crpNPCCorporationTrades ADD CONSTRAINT crpNPCCorporationTrades_FK_corporation FOREIGN KEY (corporationID) REFERENCES dbo.crpNPCCorporations(corporationID)
+ALTER TABLE dbo.crpNPCCorporationTrades ADD CONSTRAINT crpNPCCorporationTrades_FK_type FOREIGN KEY (typeID) REFERENCES dbo.invTypes(typeID)
+     
      * * */
 
     public class NpcCorporationMapper : SubclassMap<NpcCorporation>
@@ -103,6 +143,10 @@ ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_icon FOREIGN
             References(x => x.Investor2, "investorID2");
             References(x => x.Investor3, "investorID3");
             References(x => x.Investor4, "investorID4");
+
+            HasMany(x => x.Devisions).Table("crpNPCCorporationDivisions").KeyColumn("corporationID").AsEntityMap("divisionID").Element("size", part => part.Type<int>());
+            HasManyToMany(x => x.ResearchSkills).Table("crpNPCCorporationResearchFields").ParentKeyColumn("corporationID").ChildKeyColumn("skillID").AsBag().Not.Inverse();
+            HasManyToMany(x => x.Trades).Table("crpNPCCorporationTrades").ParentKeyColumn("corporationID").ChildKeyColumn("typeID").AsBag().Not.Inverse();
 
             Map(x => x.Size, "size").Length(1);
             Map(x => x.Extend, "extent").Length(1);
@@ -129,7 +173,16 @@ ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_icon FOREIGN
 
     public class NpcCorporation : InventoryName
     {
-        
+
+        public NpcCorporation()
+        {
+            Devisions = new Dictionary<NpcDevision, int>();
+            ResearchSkills = new List<InventoryType>();
+            Trades = new List<InventoryType>();
+
+        }
+
+
 
         public virtual SolarSystem SolarSystem { get; set; }
         public virtual Icon Icon { get; set; }
@@ -141,6 +194,10 @@ ALTER TABLE crpNPCCorporations ADD CONSTRAINT crpNPCCorporations_FK_icon FOREIGN
         public virtual NpcCorporation Friend { get; set; }
         public virtual NpcCorporation Enemy { get; set; }
 
+        public virtual IDictionary<NpcDevision, int> Devisions { get; set; }
+        public virtual ICollection<InventoryType> ResearchSkills { get; set; }
+        public virtual ICollection<InventoryType> Trades { get; set; }
+        
 
         public virtual string Size { get; set; }
         public virtual string Extend { get; set; }

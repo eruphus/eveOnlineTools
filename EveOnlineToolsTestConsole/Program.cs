@@ -34,8 +34,10 @@
 using System.Linq;
 using libEveOnlineTools;
 using libEveStatic;
+using libEveStatic.database.entities.CHR;
 using libEveStatic.database.entities.CRP;
 using libEveStatic.database.entities.INV;
+using libEveStatic.database.entities.PLA;
 using libEveStatic.database.entities.TRN;
 using libUtils.Core;
 
@@ -48,8 +50,13 @@ namespace EveOnlineToolsTestConsole
 
             using (ApplicationCore.Create<EveOnlineToolsCore>())
             {
+                var allTypesWithInstallations = (from g in EveStaticDatabase.Query<InventoryType>() where g.Installations.Count > 0 select g).ToList();
 
-                var allTypes = (from g in EveStaticDatabase.Query<InventoryType>() where g.Id < 10000 select g).ToList();
+                var allPlanetSchematic = (from g in EveStaticDatabase.Query<PlanetSchematic>() select g).ToList();
+                var allControlTowerResources = (from g in EveStaticDatabase.Query<InventoryType>() where g.ControlTowerResources.Count > 0 select g).ToList();
+                var allFactions = (from g in EveStaticDatabase.Query<Faction>() select g).ToList();
+                var allTypes = (from g in EveStaticDatabase.Query<InventoryType>() where g.Attributes.Count > 0 select g).ToList();
+                var allCorps = (from g in EveStaticDatabase.Query<NpcCorporation>() where g.ResearchSkills.Count > 0 select g).ToList();
 
 
                 var allNpcCorps = (from g in EveStaticDatabase.Query<NpcCorporation>() where g.Name.StartsWith("Urban") select g).ToList();

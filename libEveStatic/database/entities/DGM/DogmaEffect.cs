@@ -159,5 +159,9 @@ ALTER TABLE dgmEffects ADD CONSTRAINT dgmEffects_FK_fittingUsageChanceAttributeI
         public virtual bool PropulsionChance { get; set; }
         public virtual int Distribution { get; set; }
 
+        public override string ToString()
+        {
+            return string.Format("[{0}] {1}", Id, EffectName);
+        }
     }
 }

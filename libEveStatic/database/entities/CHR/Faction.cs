@@ -31,8 +31,10 @@
  
  */
 
+using System.Collections.Generic;
 using FluentNHibernate.Mapping;
 using libEveStatic.database.entities.CRP;
+using libEveStatic.database.entities.DGM;
 using libEveStatic.database.entities.EVE;
 using libEveStatic.database.entities.INV;
 using libEveStatic.database.entities.MAP;
@@ -66,7 +68,24 @@ ALTER TABLE chrFactions ADD CONSTRAINT chrFactions_FK_militiaCorporationID FOREI
 ALTER TABLE chrFactions ADD CONSTRAINT chrFactions_FK_icon FOREIGN KEY (iconID) REFERENCES eveIcons(iconID)
  
      
-     */
+     * 
+     * 
+CREATE TABLE dbo.invContrabandTypes
+(
+  factionID         int,
+  typeID            int,
+
+  standingLoss      float,
+  confiscateMinSec  float,
+  fineByValue       float,
+  attackMinSec      float,
+
+  CONSTRAINT invContrabandTypes_PK PRIMARY KEY CLUSTERED (factionID, typeID)
+)
+  CREATE NONCLUSTERED INDEX invContrabandTypes_IX_type ON dbo.invContrabandTypes (typeID)     * 
+     * 
+ALTER TABLE invContrabandTypes ADD CONSTRAINT invContrabandTypes_FK_type FOREIGN KEY (typeID) REFERENCES invTypes(typeID)
+ALTER TABLE invContrabandTypes ADD CONSTRAINT invContrabandTypes_FK_faction FOREIGN KEY (factionID) REFERENCES chrFactions(factionID)     */
 
     public class FactionMapper : SubclassMap<Faction>
     {
@@ -80,6 +99,7 @@ ALTER TABLE chrFactions ADD CONSTRAINT chrFactions_FK_icon FOREIGN KEY (iconID) 
             References(x => x.MilitiaCorporation, "militiaCorporationID").Nullable();
             References(x => x.SolarSystem, "solarSystemID").Nullable();
 
+            HasMany(x => x.Contrabands).Table("invContrabandTypes").KeyColumn("factionID").AsEntityMap("typeID");
             Map(x => x.RaceIds, "raceIDs").Nullable();
 
             Map(x => x.FactionName, "factionName").Nullable().Length(100);
@@ -93,12 +113,17 @@ ALTER TABLE chrFactions ADD CONSTRAINT chrFactions_FK_icon FOREIGN KEY (iconID) 
 
     public class Faction : InventoryName
     {
-        //public virtual int Id { get; set; }
-
+        public Faction()
+        {
+            Contrabands = new Dictionary<InventoryType, ContrabandType>();    
+        }
+        
         public virtual Icon Icon { get; set; }
         public virtual NpcCorporation Corporation { get; set; }
         public virtual NpcCorporation MilitiaCorporation { get; set; }
         public virtual SolarSystem SolarSystem { get; set; }
+
+        public virtual IDictionary<InventoryType, ContrabandType> Contrabands { get; set; }
 
         public virtual int RaceIds { get; set; }
 

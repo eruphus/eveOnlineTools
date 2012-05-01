@@ -35,7 +35,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using FluentNHibernate.Mapping;
 using libEveStatic.database.entities.CHR;
+using libEveStatic.database.entities.DGM;
 using libEveStatic.database.entities.EVE;
+using libEveStatic.database.entities.RAM;
 using libEveStatic.pictures;
 using libUtils.Core;
 using Icon = libEveStatic.database.entities.EVE.Icon;
@@ -75,7 +77,70 @@ ALTER TABLE invTypes ADD CONSTRAINT invTypes_FK_race FOREIGN KEY (raceID) REFERE
 	materialTypeID	int(10)	NO	PRI		
 	quantity	int(10)	NO		0	
      * * 
-*/
+     * 
+     * 
+CREATE TABLE dbo.dgmTypeAttributes
+(
+  typeID       int,
+  attributeID  smallint,
+  valueInt     int,
+  valueFloat   float,
+
+  CONSTRAINT dgmTypeAttributes_PK PRIMARY KEY CLUSTERED (typeID, attributeID)
+)
+     * 
+     * 
+ALTER TABLE dgmTypeAttributes ADD CONSTRAINT dgmTypeAttributes_FK_type FOREIGN KEY (typeID) REFERENCES invTypes(typeID)
+ALTER TABLE dgmTypeAttributes ADD CONSTRAINT dgmTypeAttributes_FK_attribute FOREIGN KEY (attributeID) REFERENCES dgmAttributeTypes(attributeID)
+     
+     
+     
+CREATE TABLE dbo.dgmTypeEffects
+(
+  typeID      int,
+  effectID    smallint,
+  isDefault   bit,
+
+  CONSTRAINT dgmTypeEffects_PK PRIMARY KEY CLUSTERED(typeID, effectID)
+)
+
+     * 
+     * 
+ALTER TABLE dgmTypeEffects ADD CONSTRAINT dgmTypeEffects_FK_type FOREIGN KEY (typeID) REFERENCES invTypes(typeID)
+ALTER TABLE dgmTypeEffects ADD CONSTRAINT dgmTypeEffects_FK_effects FOREIGN KEY (effectID) REFERENCES dgmEffects(effectID)
+
+     * 
+     * 
+CREATE TABLE dbo.invControlTowerResources
+(
+  controlTowerTypeID  int,
+  resourceTypeID      int,
+  --
+  purpose             tinyint,
+  quantity            int,
+  minSecurityLevel    float,
+  factionID           int,
+
+  CONSTRAINT invControlTowerResources_PK PRIMARY KEY CLUSTERED (controlTowerTypeID, resourceTypeID)
+)
+
+     
+     * 
+     * 
+ALTER TABLE invControlTowerResources ADD CONSTRAINT invControlTowerResources_FK_faction FOREIGN KEY (factionID) REFERENCES chrFactions(factionID)
+ALTER TABLE invControlTowerResources ADD CONSTRAINT invControlTowerResources_FK_resourceType FOREIGN KEY (resourceTypeID) REFERENCES invTypes(typeID)
+ALTER TABLE invControlTowerResources ADD CONSTRAINT invControlTowerResources_FK_constrolTowerType FOREIGN KEY (controlTowerTypeID) REFERENCES invTypes(typeID)
+
+     * 
+     
+CREATE TABLE dbo.ramInstallationTypeContents
+(
+  installationTypeID  int      NOT NULL,
+  assemblyLineTypeID  tinyint  NOT NULL,
+  --
+  quantity            tinyint  NULL,
+  CONSTRAINT ramInstallationTypeContents_PK PRIMARY KEY CLUSTERED (installationTypeID, assemblyLineTypeID)
+)     */
 
 
 
@@ -94,6 +159,10 @@ ALTER TABLE invTypes ADD CONSTRAINT invTypes_FK_race FOREIGN KEY (raceID) REFERE
             References(x => x.Race, "raceID").Nullable();
 
             HasMany(x => x.Materials).Table("invTypeMaterials").KeyColumn("typeID").AsEntityMap("materialTypeID").Element("quantity", part => part.Type<int>());
+            HasMany(x => x.Attributes).KeyColumn("typeID").AsEntityMap("attributeID");
+            HasMany(x => x.Effects).Table("dgmTypeEffects").KeyColumn("typeID").AsEntityMap("effectID").Element("isDefault", part => part.Type<bool>());
+            HasMany(x => x.ControlTowerResources).KeyColumn("controlTowerTypeID").AsEntityMap("resourceTypeID");
+            HasMany(x => x.Installations).Table("ramInstallationTypeContents").KeyColumn("installationTypeID").AsEntityMap("assemblyLineTypeID").Element("quantity", part => part.Type<int>());
                 
             Map(x => x.Name, "typeName").Length(100).Nullable();
             Map(x => x.Description, "description").Length(3000).Nullable();
@@ -117,6 +186,10 @@ ALTER TABLE invTypes ADD CONSTRAINT invTypes_FK_race FOREIGN KEY (raceID) REFERE
         public InventoryType()
         {
             Materials = new Dictionary<InventoryType, int>();
+            Attributes = new Dictionary<DogmaAttributeType, DogmaTypeAttribute>();
+            Effects = new Dictionary<DogmaEffect, bool>();
+            ControlTowerResources = new Dictionary<InventoryType, ControlTowerResource>();
+            Installations = new Dictionary<AssemblyLineType, int>();
         }
 
         public virtual int Id { get; set; }
@@ -127,6 +200,10 @@ ALTER TABLE invTypes ADD CONSTRAINT invTypes_FK_race FOREIGN KEY (raceID) REFERE
         public virtual Icon Icon { get; set; }
 
         public virtual IDictionary<InventoryType, int> Materials { get; set; }
+        public virtual IDictionary<DogmaEffect, bool> Effects{ get; set; }
+        public virtual IDictionary<DogmaAttributeType, DogmaTypeAttribute> Attributes { get; set; }
+        public virtual IDictionary<InventoryType, ControlTowerResource> ControlTowerResources { get; set; }
+        public virtual IDictionary<AssemblyLineType, int> Installations { get; set; }
 
         public virtual string Name { get; set; }
         public virtual string Description { get; set; }
@@ -179,4 +256,5 @@ ALTER TABLE invTypes ADD CONSTRAINT invTypes_FK_race FOREIGN KEY (raceID) REFERE
             return string.Format("[{0}] {1}", Id, Name);
         }
     }
+
 }

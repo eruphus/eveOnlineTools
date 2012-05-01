@@ -31,6 +31,7 @@
  
  */
 
+using System.Collections.Generic;
 using FluentNHibernate.Mapping;
 
 namespace libEveStatic.database.entities.CRP
@@ -46,6 +47,8 @@ CREATE TABLE dbo.crpNPCDivisions
   CONSTRAINT crpNPCDivisions_PK PRIMARY KEY CLUSTERED (divisionID)
 )
 
+     * 
+
     */
 
     public class NpcDevisionMapper : ClassMap<NpcDevision>
@@ -56,8 +59,9 @@ CREATE TABLE dbo.crpNPCDivisions
 
             Id(x => x.Id, "divisionID");
 
+
             Map(x => x.DivisionName, "divisionName").Length(100);
-            Map(x => x.Description, "description").Length(1000);
+            Map(x => x.Description, "description").Length(1000);    
             Map(x => x.LeaderType, "leaderType").Length(100);
 
         }
@@ -66,11 +70,17 @@ CREATE TABLE dbo.crpNPCDivisions
 
     public class NpcDevision 
     {
+
+
         public virtual int Id { get; set; }
 
         public virtual string DivisionName { get; set; }
         public virtual string Description { get; set; }
         public virtual string LeaderType { get; set; }
 
+        public override string ToString()
+        {
+            return string.Format("[{0}] {1}", Id, DivisionName);
+        }
     }
 }
